@@ -155,13 +155,42 @@ POST _scripts/with_response_and_tag
 #   parameters as follows: (i) "with_min_response": 500, (ii) 
 #   "with_tag": "security"
 
-POST _scripts/with_response_and_tag
+PUT _scripts/with_response_and_tag
 {
   "script": {
     "lang": "mustache",
-    "source": "{\"qury\": {\"bool\": {\"filter\": [{\"range\": {\"response\": {\"gte\": \"{{with_min_response}}\",\"lte\": \"{{with_max_response}}\"}}}, { {{#with_tag}}\"match\": {\"tags\":\"{{with_tag}}\"}  {{/with_tag}}}]}}}"
+    "source": """
+      {
+        "query": {
+            "bool": {
+              "filter": [
+                {
+                  "range": {
+                    "response": {
+                      "gte": "{{with_min_response}}"
+                      {{#with_max_response}}
+                      ,"lte": "{{with_max_response}}"
+                      {{/with_max_response}}
+                    }
+                  }
+                }
+                {{#with_tag}}
+                ,{
+                  "match": {
+                    "tags":"{{with_tag}}"}  
+                }
+                {{/with_tag}}
+            ]
+          }
+        }
+      }
+    """
   }
 }
+
+
+
+
 
 GET _render/template
 {
